@@ -1,20 +1,20 @@
 package com.github.stephanenicolas.kstock
 
-import android.os.Build
 import android.os.Bundle
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
-import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.github.stephanenicolas.kstock.placeholder.PlaceholderContent;
 import com.github.stephanenicolas.kstock.databinding.FragmentItemListBinding
 import com.github.stephanenicolas.kstock.databinding.ItemListContentBinding
+import com.github.stephanenicolas.kstock.placeholder.StockPlaceholderContent.StockPlaceholderItem
+import com.github.stephanenicolas.kstock.viewmodel.StockViewModel
+import kotlin.properties.Delegates
 
 /**
  * A Fragment representing a list of Pings. This fragment
@@ -27,37 +27,13 @@ import com.github.stephanenicolas.kstock.databinding.ItemListContentBinding
 
 class ItemListFragment : Fragment() {
 
-  /**
-   * Method to intercept global key events in the
-   * item list fragment to trigger keyboard shortcuts
-   * Currently provides a toast when Ctrl + Z and Ctrl + F
-   * are triggered
-   */
-  private val unhandledKeyEventListenerCompat =
-    ViewCompat.OnUnhandledKeyEventListenerCompat { v, event ->
-      if (event.keyCode == KeyEvent.KEYCODE_Z && event.isCtrlPressed) {
-        Toast.makeText(
-          v.context,
-          "Undo (Ctrl + Z) shortcut triggered",
-          Toast.LENGTH_LONG
-        ).show()
-        true
-      } else if (event.keyCode == KeyEvent.KEYCODE_F && event.isCtrlPressed) {
-        Toast.makeText(
-          v.context,
-          "Find (Ctrl + F) shortcut triggered",
-          Toast.LENGTH_LONG
-        ).show()
-        true
-      }
-      false
-    }
-
   private var _binding: FragmentItemListBinding? = null
 
   // This property is only valid between onCreateView and
   // onDestroyView.
   private val binding get() = _binding!!
+
+  private val viewModel by viewModels<StockViewModel>()
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -75,8 +51,6 @@ class ItemListFragment : Fragment() {
   ) {
     super.onViewCreated(view, savedInstanceState)
 
-    ViewCompat.addOnUnhandledKeyEventListener(view, unhandledKeyEventListenerCompat)
-
     val recyclerView: RecyclerView = binding.itemList
 
     // Leaving this not using view binding as it relies on if the view is visible the current
@@ -87,11 +61,11 @@ class ItemListFragment : Fragment() {
      * a single pane layout or two pane layout
      */
     val onClickListener = View.OnClickListener { itemView ->
-      val item = itemView.tag as PlaceholderContent.PlaceholderItem
+      val item = itemView.tag as StockPlaceholderItem
       val bundle = Bundle()
       bundle.putString(
         ItemDetailFragment.ARG_ITEM_ID,
-        item.id
+        item.symbol
       )
       if (itemDetailFragmentContainer != null) {
         itemDetailFragmentContainer.findNavController()
@@ -101,42 +75,64 @@ class ItemListFragment : Fragment() {
       }
     }
 
-    /**
-     * Context click listener to handle Right click events
-     * from mice and trackpad input to provide a more native
-     * experience on larger screen devices
-     */
-    val onContextClickListener = View.OnContextClickListener { v ->
-      val item = v.tag as PlaceholderContent.PlaceholderItem
-      Toast.makeText(
-        v.context,
-        "Context click of item " + item.id,
-        Toast.LENGTH_LONG
-      ).show()
-      true
-    }
-    setupRecyclerView(recyclerView, onClickListener, onContextClickListener)
+    setupRecyclerView(recyclerView, onClickListener)
   }
 
   private fun setupRecyclerView(
     recyclerView: RecyclerView,
-    onClickListener: View.OnClickListener,
-    onContextClickListener: View.OnContextClickListener
+    onClickListener: View.OnClickListener
   ) {
 
-    recyclerView.adapter = SimpleItemRecyclerViewAdapter(
-      PlaceholderContent.ITEMS,
-      onClickListener,
-      onContextClickListener
+    val adapter = SimpleItemRecyclerViewAdapter(
+      viewModel.data.value!!,
+      onClickListener
     )
+
+    recyclerView.adapter = adapter
+    viewModel.data.observe(viewLifecycleOwner, {
+      adapter.items = it
+    })
+
+    viewModel.loadQuotes()
+  }
+
+  interface DiffUtilAdapter {
+    fun <T> notifyChanges(
+      oldList: List<T>,
+      newList: List<T>,
+      compare: (oldItem: T, newItem: T) -> Boolean
+    ) {
+      val diff = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+          return compare(oldList[oldItemPosition], newList[newItemPosition])
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+          return oldList[oldItemPosition] == newList[newItemPosition]
+        }
+
+        override fun getOldListSize() = oldList.size
+        override fun getNewListSize() = newList.size
+      })
+      diff.dispatchUpdatesTo(this as RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder>)
+    }
   }
 
   class SimpleItemRecyclerViewAdapter(
-    private val values: List<PlaceholderContent.PlaceholderItem>,
-    private val onClickListener: View.OnClickListener,
-    private val onContextClickListener: View.OnContextClickListener
+    values: List<StockPlaceholderItem>,
+    private val onClickListener: View.OnClickListener
   ) :
-    RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder>() {
+    RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder>(), DiffUtilAdapter {
+
+    var items: List<StockPlaceholderItem> by Delegates.observable(emptyList()) { prop, oldList, newList ->
+      notifyChanges(oldList, newList) { oldItem, newItem ->
+        oldItem.symbol == newItem.symbol
+      }
+    }
+
+    init {
+      items = values
+    }
 
     override fun onCreateViewHolder(
       parent: ViewGroup,
@@ -152,20 +148,17 @@ class ItemListFragment : Fragment() {
       holder: ViewHolder,
       position: Int
     ) {
-      val item = values[position]
-      holder.idView.text = item.id
-      holder.contentView.text = item.content
+      val item = items[position]
+      holder.idView.text = item.symbol
+      holder.contentView.text = item.price
 
       with(holder.itemView) {
         tag = item
         setOnClickListener(onClickListener)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-          setOnContextClickListener(onContextClickListener)
-        }
       }
     }
 
-    override fun getItemCount() = values.size
+    override fun getItemCount() = items.size
 
     inner class ViewHolder(binding: ItemListContentBinding) : RecyclerView.ViewHolder(
       binding.root

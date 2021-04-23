@@ -2,12 +2,11 @@ package com.github.stephanenicolas.kstock
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
-import com.google.android.material.appbar.CollapsingToolbarLayout
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import com.github.stephanenicolas.kstock.placeholder.PlaceholderContent
+import com.github.stephanenicolas.kstock.placeholder.StockPlaceholderContent
 import com.github.stephanenicolas.kstock.databinding.FragmentItemDetailBinding
 
 /**
@@ -21,7 +20,7 @@ class ItemDetailFragment : Fragment() {
   /**
    * The placeholder content this fragment is presenting.
    */
-  private var item: PlaceholderContent.PlaceholderItem? = null
+  private var itemStock: StockPlaceholderContent.StockPlaceholderItem? = null
 
   lateinit var itemDetailTextView: TextView
 
@@ -39,7 +38,7 @@ class ItemDetailFragment : Fragment() {
         // Load the placeholder content specified by the fragment
         // arguments. In a real-world scenario, use a Loader
         // to load content from a content provider.
-        item = PlaceholderContent.ITEM_MAP[it.getString(ARG_ITEM_ID)]
+        itemStock = StockPlaceholderContent.MAP_STOCK[it.getString(ARG_ITEM_ID)]
       }
     }
   }
@@ -53,11 +52,11 @@ class ItemDetailFragment : Fragment() {
     _binding = FragmentItemDetailBinding.inflate(inflater, container, false)
     val rootView = binding.root
 
-    binding.toolbarLayout?.title = item?.content
+    binding.toolbarLayout?.title = itemStock?.price
 
     itemDetailTextView = binding.itemDetail
     // Show the placeholder content as text in a TextView.
-    item?.let {
+    itemStock?.let {
       itemDetailTextView.text = it.details
     }
 

@@ -8,7 +8,7 @@
   <fragment
       android:id="@+id/item_list_fragment"
       android:name="com.github.stephanenicolas.kstock.ItemListFragment"
-      android:label="ItemListFragment">
+      android:label="Symbols">
     <action
         android:id="@+id/show_item_detail"
         app:destination="@id/item_detail_fragment" />
