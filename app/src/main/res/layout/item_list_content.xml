@@ -7,7 +7,7 @@
 
   <TextView
       android:id="@+id/id_text"
-      android:layout_width="wrap_content"
+      android:layout_width="@dimen/ticker_width"
       android:layout_height="wrap_content"
       android:layout_margin="@dimen/text_margin"
       android:textAppearance="?attr/textAppearanceListItem"
@@ -15,9 +15,22 @@
 
   <TextView
       android:id="@+id/content"
-      android:layout_width="wrap_content"
+      android:layout_width="@dimen/price_width"
       android:layout_height="wrap_content"
       android:layout_margin="@dimen/text_margin"
       android:textAppearance="?attr/textAppearanceListItem"
+      android:textAlignment="textEnd"
       />
+
+  <com.github.stephanenicolas.kstock.views.LastPricesView
+      android:id="@+id/last_prices_chart"
+      android:layout_width="@dimen/chart_width"
+      android:layout_height="match_parent"
+      android:paddingLeft="10dp"
+      android:paddingTop="10dp"
+      android:paddingRight="10dp"
+      android:paddingBottom="10dp"
+      android:background="@color/white"
+      />
+
 </LinearLayout>

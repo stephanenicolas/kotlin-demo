@@ -12,8 +12,9 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.github.stephanenicolas.kstock.databinding.FragmentItemListBinding
 import com.github.stephanenicolas.kstock.databinding.ItemListContentBinding
-import com.github.stephanenicolas.kstock.placeholder.StockPlaceholderContent.StockPlaceholderItem
+import com.github.stephanenicolas.kstock.placeholder.StockPlaceholderContent.StockItem
 import com.github.stephanenicolas.kstock.viewmodel.StockViewModel
+import com.github.stephanenicolas.kstock.views.LastPricesView
 import kotlin.properties.Delegates
 
 /**
@@ -61,7 +62,7 @@ class ItemListFragment : Fragment() {
      * a single pane layout or two pane layout
      */
     val onClickListener = View.OnClickListener { itemView ->
-      val item = itemView.tag as StockPlaceholderItem
+      val item = itemView.tag as StockItem
       val bundle = Bundle()
       bundle.putString(
         ItemDetailFragment.ARG_ITEM_ID,
@@ -94,6 +95,7 @@ class ItemListFragment : Fragment() {
     })
 
     viewModel.loadQuotes()
+    viewModel.loadLastPrices()
   }
 
   interface DiffUtilAdapter {
@@ -119,12 +121,12 @@ class ItemListFragment : Fragment() {
   }
 
   class SimpleItemRecyclerViewAdapter(
-    values: List<StockPlaceholderItem>,
+    values: List<StockItem>,
     private val onClickListener: View.OnClickListener
   ) :
     RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder>(), DiffUtilAdapter {
 
-    var items: List<StockPlaceholderItem> by Delegates.observable(emptyList()) { prop, oldList, newList ->
+    var items: List<StockItem> by Delegates.observable(emptyList()) { prop, oldList, newList ->
       notifyChanges(oldList, newList) { oldItem, newItem ->
         oldItem.symbol == newItem.symbol
       }
@@ -151,6 +153,7 @@ class ItemListFragment : Fragment() {
       val item = items[position]
       holder.idView.text = item.symbol
       holder.contentView.text = item.price
+      holder.lastPricesChartView.setLastPrices(item.lastPrices)
 
       with(holder.itemView) {
         tag = item
@@ -165,6 +168,7 @@ class ItemListFragment : Fragment() {
     ) {
       val idView: TextView = binding.idText
       val contentView: TextView = binding.content
+      val lastPricesChartView: LastPricesView = binding.lastPricesChart
     }
   }
 

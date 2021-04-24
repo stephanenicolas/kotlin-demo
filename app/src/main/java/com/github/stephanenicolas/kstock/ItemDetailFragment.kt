@@ -20,7 +20,7 @@ class ItemDetailFragment : Fragment() {
   /**
    * The placeholder content this fragment is presenting.
    */
-  private var itemStock: StockPlaceholderContent.StockPlaceholderItem? = null
+  private var itemStock: StockPlaceholderContent.StockItem? = null
 
   lateinit var itemDetailTextView: TextView
 
@@ -55,10 +55,6 @@ class ItemDetailFragment : Fragment() {
     binding.toolbarLayout?.title = itemStock?.price
 
     itemDetailTextView = binding.itemDetail
-    // Show the placeholder content as text in a TextView.
-    itemStock?.let {
-      itemDetailTextView.text = it.details
-    }
 
     return rootView
   }

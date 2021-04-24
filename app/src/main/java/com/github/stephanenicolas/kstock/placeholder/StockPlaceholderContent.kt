@@ -5,10 +5,10 @@ import java.util.HashMap
 
 object StockPlaceholderContent {
 
-  val STOCKS: MutableList<StockPlaceholderItem> = ArrayList()
-  val MAP_STOCK: MutableMap<String, StockPlaceholderItem> = HashMap()
+  val STOCKS: MutableList<StockItem> = ArrayList()
+  val MAP_STOCK: MutableMap<String, StockItem> = HashMap()
 
-  val tickers = listOf(
+  val TICKERS = listOf(
     "TLT",
     "GLD",
     "SPY",
@@ -16,36 +16,42 @@ object StockPlaceholderContent {
   )
 
   init {
-    tickers
+    TICKERS
       .onEach {
-        addItem(createStockPlaceholderItem(it))
+        addStockItem(createStockPlaceholderItem(it))
       }
   }
 
-  fun updateItem(symbol: String, price: String) {
-    STOCKS[STOCKS.indexOfFirst { stock -> stock.symbol == symbol }] =
-      createStockPlaceholderItem(symbol, price)
+  fun updateStockItemPrice(symbol: String, price: String) {
+    val index = STOCKS.indexOfFirst { stock -> stock.symbol == symbol }
+    STOCKS[index] = createStockPlaceholderItem(symbol, price, STOCKS[index].lastPrices)
   }
 
-  private fun addItem(itemStock: StockPlaceholderItem) {
+  fun updateStockItemLastPrices(symbol: String, lastPrices: List<Float>) {
+    val index = STOCKS.indexOfFirst { stock -> stock.symbol == symbol }
+    STOCKS[index] = createStockPlaceholderItem(symbol, STOCKS[index].price, lastPrices)
+  }
+
+  private fun addStockItem(itemStock: StockItem) {
     STOCKS.add(itemStock)
     MAP_STOCK[itemStock.symbol] = itemStock
   }
 
   private fun createStockPlaceholderItem(
-    ticker: String,
-    currentPrice: String = ""
-  ): StockPlaceholderItem {
-    return StockPlaceholderItem(ticker, currentPrice.toString(), "")
+    symbol: String,
+    currentPrice: String = "",
+    lastPrices: List<Float> = emptyList()
+  ): StockItem {
+    return StockItem(symbol, currentPrice, lastPrices)
   }
 
   /**
    * A placeholder item representing a piece of content.
    */
-  data class StockPlaceholderItem(
+  data class StockItem(
     val symbol: String,
     val price: String,
-    val details: String
+    val lastPrices: List<Float>
   ) {
     override fun toString(): String = symbol
   }
