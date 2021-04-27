@@ -7,7 +7,7 @@ import android.graphics.Paint
 import android.text.TextPaint
 import android.util.AttributeSet
 import android.view.View
-import com.github.stephanenicolas.kstock.ui.placeholder.Candle
+import com.github.stephanenicolas.kstock.model.Candle
 
 class CandleChartView(context: Context, attrs: AttributeSet?): View(context, attrs) {
 

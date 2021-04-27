@@ -4,7 +4,7 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.PointF
 import android.graphics.Rect
-import com.github.stephanenicolas.kstock.ui.placeholder.Candle
+import com.github.stephanenicolas.kstock.model.Candle
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 

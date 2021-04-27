@@ -1,4 +1,4 @@
-package com.github.stephanenicolas.kstock.ui.placeholder
+package com.github.stephanenicolas.kstock.model
 
 import java.time.LocalDateTime
 

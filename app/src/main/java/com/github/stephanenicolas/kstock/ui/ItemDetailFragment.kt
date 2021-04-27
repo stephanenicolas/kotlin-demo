@@ -10,8 +10,9 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.viewModels
 import com.github.stephanenicolas.kstock.R
-import com.github.stephanenicolas.kstock.ui.placeholder.StockPlaceholderContent
+import com.github.stephanenicolas.kstock.model.StockRepository
 import com.github.stephanenicolas.kstock.databinding.FragmentItemDetailBinding
+import com.github.stephanenicolas.kstock.model.Stock
 import com.github.stephanenicolas.kstock.ui.views.CandleChartView
 import com.github.stephanenicolas.kstock.viewmodel.StockViewModel
 
@@ -26,7 +27,7 @@ class ItemDetailFragment : Fragment() {
   /**
    * The placeholder content this fragment is presenting.
    */
-  private var itemStock: StockPlaceholderContent.StockItem? = null
+  private var itemStock: Stock? = null
   private lateinit var detailStockSymbolTextView: TextView
   private lateinit var detailStockPriceTextView: TextView
   private lateinit var candleChartView: CandleChartView
@@ -47,7 +48,7 @@ class ItemDetailFragment : Fragment() {
         // Load the placeholder content specified by the fragment
         // arguments. In a real-world scenario, use a Loader
         // to load content from a content provider.
-        itemStock = StockPlaceholderContent.MAP_STOCK[it.getString(ARG_ITEM_ID)]
+        itemStock = StockRepository.getStock(it.getString(ARG_ITEM_ID))
       }
     }
 
@@ -56,9 +57,11 @@ class ItemDetailFragment : Fragment() {
         .filter { it.symbol == itemStock!!.symbol }
         .single()
 
-      candleChartView.setPrices(stockItem.candles)
-      setHasOptionsMenu(true)
+      stockItem.candles?.let {
+        candleChartView.setPrices(stockItem.candles)
+      }
     }
+    setHasOptionsMenu(true)
   }
 
   override fun onCreateView(
