@@ -1,9 +1,7 @@
 package com.github.stephanenicolas.kstock.ui
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -37,6 +35,31 @@ class ItemListFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel by viewModels<StockViewModel>()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+        when (item.itemId) {
+            R.id.action_search -> {
+                true
+            }
+            R.id.action_edit -> {
+                true
+            }
+            else -> {
+                super.onOptionsItemSelected(item)
+            }
+        }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        // Inflate the menu; this adds items to the action bar if it is present.
+        activity?.menuInflater?.inflate(R.menu.menu_list, menu)
+        menu.findItem(R.id.action_edit).
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
