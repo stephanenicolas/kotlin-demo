@@ -5,28 +5,48 @@
     android:id="@+id/item_detail_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ItemDetailHostActivity"
+    tools:context=".ui.ItemDetailHostActivity"
     tools:ignore="MergeRootFrame"
     >
 
-  <androidx.core.widget.NestedScrollView
-      android:id="@+id/item_detail_scroll_view"
+  <RelativeLayout
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       app:layout_behavior="@string/appbar_scrolling_view_behavior"
       >
-
-    <TextView
-        android:id="@+id/item_detail"
+    <com.github.stephanenicolas.kstock.ui.views.CandleChartView
+        android:id="@+id/candle_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="16dp"
-        android:textIsSelectable="true"
-        tools:context="com.github.stephanenicolas.kstock.ItemDetailFragment"
-        style="?android:attr/textAppearanceLarge"
+        android:layout_height="200dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="2dp"
+        android:layout_marginEnd="2dp"
+        android:layout_marginStart="2dp"
+        android:layout_marginTop="2dp"
+        android:background="@color/black"
+        android:padding="0dp"
         />
 
-  </androidx.core.widget.NestedScrollView>
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/item_detail_scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_below="@id/candle_view"
+        >
+
+      <TextView
+          android:id="@+id/item_detail"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:padding="16dp"
+          android:textIsSelectable="true"
+          tools:context="com.github.stephanenicolas.kstock.ui.ItemDetailFragment"
+          style="?android:attr/textAppearanceLarge"
+          />
+
+    </androidx.core.widget.NestedScrollView>
+
+  </RelativeLayout>
 
   <com.google.android.material.appbar.AppBarLayout
       android:id="@+id/app_bar"
@@ -63,8 +83,8 @@
       android:layout_gravity="center_vertical|start"
       android:layout_margin="@dimen/fab_margin"
       app:layout_anchor="@+id/item_detail_scroll_view"
-      app:layout_anchorGravity="top|end"
-      app:srcCompat="@android:drawable/stat_notify_chat"
+      app:layout_anchorGravity="bottom|start"
+      app:srcCompat="@android:drawable/ic_menu_zoom"
       />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

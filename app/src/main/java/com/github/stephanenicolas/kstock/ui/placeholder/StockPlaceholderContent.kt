@@ -1,4 +1,4 @@
-package com.github.stephanenicolas.kstock.placeholder
+package com.github.stephanenicolas.kstock.ui.placeholder
 
 import java.util.ArrayList
 import java.util.HashMap
@@ -22,14 +22,22 @@ object StockPlaceholderContent {
       }
   }
 
-  fun updateStockItemPrice(symbol: String, price: String) {
+  fun updateStockItemPrice(symbol: String, price: Float) {
     val index = STOCKS.indexOfFirst { stock -> stock.symbol == symbol }
-    STOCKS[index] = createStockPlaceholderItem(symbol, price, STOCKS[index].lastPrices)
+    STOCKS[index] = STOCKS[index].copy(price = price)
+    MAP_STOCK[symbol] = STOCKS[index]
   }
 
   fun updateStockItemLastPrices(symbol: String, lastPrices: List<Float>) {
     val index = STOCKS.indexOfFirst { stock -> stock.symbol == symbol }
-    STOCKS[index] = createStockPlaceholderItem(symbol, STOCKS[index].price, lastPrices)
+    STOCKS[index] = STOCKS[index].copy(lastPrices = lastPrices)
+    MAP_STOCK[symbol] = STOCKS[index]
+  }
+
+  fun updateStockItemCandles(symbol: String, candles: List<Candle>) {
+    val index = STOCKS.indexOfFirst { stock -> stock.symbol == symbol }
+    STOCKS[index] = STOCKS[index].copy(candles = candles)
+    MAP_STOCK[symbol] = STOCKS[index]
   }
 
   private fun addStockItem(itemStock: StockItem) {
@@ -39,10 +47,11 @@ object StockPlaceholderContent {
 
   private fun createStockPlaceholderItem(
     symbol: String,
-    currentPrice: String = "",
-    lastPrices: List<Float> = emptyList()
+    currentPrice: Float = 0f,
+    lastPrices: List<Float> = emptyList(),
+    candles: List<Candle> = emptyList()
   ): StockItem {
-    return StockItem(symbol, currentPrice, lastPrices)
+    return StockItem(symbol, currentPrice, lastPrices, candles)
   }
 
   /**
@@ -50,8 +59,9 @@ object StockPlaceholderContent {
    */
   data class StockItem(
     val symbol: String,
-    val price: String,
-    val lastPrices: List<Float>
+    val price: Float,
+    val lastPrices: List<Float>,
+    val candles: List<Candle>,
   ) {
     override fun toString(): String = symbol
   }

@@ -33,11 +33,17 @@ class StockApi {
 
   private val service: StockApiService = retrofit.create(StockApiService::class.java)
 
-  fun quote(symbol: String): Flow<Quote> = flow {
+  fun quote(symbol: String): Flow<QuoteResponse> = flow {
     emit(service.getPrice(symbol))
   }.flowOn(IO)
 
-  fun candles(symbol: String, from: LocalDateTime, to: LocalDateTime): Flow<Candles> = flow {
+  fun lastPrices(symbol: String, from: LocalDateTime, to: LocalDateTime): Flow<List<Float>> = flow {
+    val value =
+      service.getCandles(symbol, from.toUnixTimeStamp().toString(), to.toUnixTimeStamp().toString()).c
+    emit(value)
+  }.flowOn(IO)
+
+  fun candles(symbol: String, from: LocalDateTime, to: LocalDateTime): Flow<CandlesResponse> = flow {
     val value =
       service.getCandles(symbol, from.toUnixTimeStamp().toString(), to.toUnixTimeStamp().toString())
     emit(value)

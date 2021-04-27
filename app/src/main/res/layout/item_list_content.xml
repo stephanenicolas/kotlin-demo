@@ -22,7 +22,7 @@
       android:textAlignment="textEnd"
       />
 
-  <com.github.stephanenicolas.kstock.views.LastPricesView
+  <com.github.stephanenicolas.kstock.ui.views.LineChartPricesView
       android:id="@+id/last_prices_chart"
       android:layout_width="@dimen/chart_width"
       android:layout_height="match_parent"

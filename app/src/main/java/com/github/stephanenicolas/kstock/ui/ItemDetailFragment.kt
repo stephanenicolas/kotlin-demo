@@ -1,4 +1,4 @@
-package com.github.stephanenicolas.kstock
+package com.github.stephanenicolas.kstock.ui
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -6,8 +6,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import com.github.stephanenicolas.kstock.placeholder.StockPlaceholderContent
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import com.github.stephanenicolas.kstock.ui.placeholder.StockPlaceholderContent
 import com.github.stephanenicolas.kstock.databinding.FragmentItemDetailBinding
+import com.github.stephanenicolas.kstock.ui.views.CandleChartView
+import com.github.stephanenicolas.kstock.viewmodel.StockViewModel
 
 /**
  * A fragment representing a single Item detail screen.
@@ -21,8 +25,10 @@ class ItemDetailFragment : Fragment() {
    * The placeholder content this fragment is presenting.
    */
   private var itemStock: StockPlaceholderContent.StockItem? = null
+  private lateinit var itemDetailTextView: TextView
+  private lateinit var candleChartView: CandleChartView
 
-  lateinit var itemDetailTextView: TextView
+  private val viewModel by viewModels<StockViewModel>()
 
   private var _binding: FragmentItemDetailBinding? = null
 
@@ -41,6 +47,14 @@ class ItemDetailFragment : Fragment() {
         itemStock = StockPlaceholderContent.MAP_STOCK[it.getString(ARG_ITEM_ID)]
       }
     }
+
+    viewModel.data.observe(this) { stockList ->
+      val stockItem = stockList
+        .filter { it.symbol == itemStock!!.symbol }
+        .single()
+
+      candleChartView.setPrices(stockItem.candles)
+    }
   }
 
   override fun onCreateView(
@@ -52,9 +66,14 @@ class ItemDetailFragment : Fragment() {
     _binding = FragmentItemDetailBinding.inflate(inflater, container, false)
     val rootView = binding.root
 
-    binding.toolbarLayout?.title = itemStock?.price
+    binding.toolbarLayout?.title = itemStock?.symbol
 
     itemDetailTextView = binding.itemDetail
+    candleChartView = binding.candleView!!
+
+    itemStock?.let {
+      viewModel.loadCandles(it.symbol)
+    }
 
     return rootView
   }

@@ -12,7 +12,7 @@
       android:layout_height="match_parent"
       android:padding="16dp"
       android:textIsSelectable="true"
-      tools:context="com.github.stephanenicolas.kstock.ItemDetailFragment"
+      tools:context="com.github.stephanenicolas.kstock.ui.ItemDetailFragment"
       style="?android:attr/textAppearanceLarge"
       />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

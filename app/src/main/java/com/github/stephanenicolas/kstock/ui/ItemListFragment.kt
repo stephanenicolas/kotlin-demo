@@ -1,4 +1,4 @@
-package com.github.stephanenicolas.kstock
+package com.github.stephanenicolas.kstock.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,11 +10,13 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.github.stephanenicolas.kstock.R
 import com.github.stephanenicolas.kstock.databinding.FragmentItemListBinding
 import com.github.stephanenicolas.kstock.databinding.ItemListContentBinding
-import com.github.stephanenicolas.kstock.placeholder.StockPlaceholderContent.StockItem
+import com.github.stephanenicolas.kstock.ui.placeholder.StockPlaceholderContent.StockItem
+import com.github.stephanenicolas.kstock.ui.ItemListFragment.SimpleItemRecyclerViewAdapter.ViewHolder
 import com.github.stephanenicolas.kstock.viewmodel.StockViewModel
-import com.github.stephanenicolas.kstock.views.LastPricesView
+import com.github.stephanenicolas.kstock.ui.views.LineChartPricesView
 import kotlin.properties.Delegates
 
 /**
@@ -63,6 +65,7 @@ class ItemListFragment : Fragment() {
      */
     val onClickListener = View.OnClickListener { itemView ->
       val item = itemView.tag as StockItem
+
       val bundle = Bundle()
       bundle.putString(
         ItemDetailFragment.ARG_ITEM_ID,
@@ -116,7 +119,7 @@ class ItemListFragment : Fragment() {
         override fun getOldListSize() = oldList.size
         override fun getNewListSize() = newList.size
       })
-      diff.dispatchUpdatesTo(this as RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder>)
+      diff.dispatchUpdatesTo(this as RecyclerView.Adapter<ViewHolder>)
     }
   }
 
@@ -124,7 +127,7 @@ class ItemListFragment : Fragment() {
     values: List<StockItem>,
     private val onClickListener: View.OnClickListener
   ) :
-    RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder>(), DiffUtilAdapter {
+    RecyclerView.Adapter<ViewHolder>(), DiffUtilAdapter {
 
     var items: List<StockItem> by Delegates.observable(emptyList()) { prop, oldList, newList ->
       notifyChanges(oldList, newList) { oldItem, newItem ->
@@ -152,14 +155,16 @@ class ItemListFragment : Fragment() {
     ) {
       val item = items[position]
       holder.idView.text = item.symbol
-      holder.contentView.text = item.price
-      holder.lastPricesChartView.setLastPrices(item.lastPrices)
+      holder.contentView.text = item.price.round()
+      holder.lineChartPricesChartView.setLastPrices(item.lastPrices)
 
       with(holder.itemView) {
         tag = item
         setOnClickListener(onClickListener)
       }
     }
+
+    private fun Float.round(decimals: Int = 2): String = "%.${decimals}f".format(this)
 
     override fun getItemCount() = items.size
 
@@ -168,7 +173,7 @@ class ItemListFragment : Fragment() {
     ) {
       val idView: TextView = binding.idText
       val contentView: TextView = binding.content
-      val lastPricesChartView: LastPricesView = binding.lastPricesChart
+      val lineChartPricesChartView: LineChartPricesView = binding.lastPricesChart
     }
   }
 

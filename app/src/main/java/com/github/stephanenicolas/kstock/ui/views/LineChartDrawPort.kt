@@ -1,29 +1,16 @@
-package com.github.stephanenicolas.kstock.views
+package com.github.stephanenicolas.kstock.ui.views
 
-import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.PointF
-import android.util.AttributeSet
-import android.view.View
 
-class LastPricesView(context: Context, attrs: AttributeSet) : View(context, attrs) {
-
-  private val chartPaint = Paint(0).apply {
-    style = Paint.Style.STROKE
-    color = Color.BLUE
-    strokeWidth = 4f
-  }
-
-  private val backgroundPaint = Paint(0).apply {
-    style = Paint.Style.FILL
-    color = Color.WHITE
-  }
-
+class LineChartDrawPort {
   private val lastPrices: MutableList<Float> = mutableListOf()
-  private var viewWidth: Float = 0f
-  private var viewHeight: Float = 0f
+
+  var viewWidth: Float = 0f
+  var viewHeight: Float = 0f
+  var viewPaddingLeft: Float = 0f
+  var viewPaddingTop: Float = 0f
 
   private var pricesRange: Float = 0f
   private var pricesMin: Float = 0f
@@ -36,29 +23,18 @@ class LastPricesView(context: Context, attrs: AttributeSet) : View(context, attr
       pricesMin = lastPrices.minOf { it }
       pricesRange = lastPrices.maxOf { it } - pricesMin
     }
-    invalidate()
-    requestLayout()
   }
 
-  override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-    super.onSizeChanged(w, h, oldw, oldh)
+  fun hasNoPrices() = lastPrices.isEmpty()
 
-    // Account for padding
-    var xpad = (paddingLeft + paddingRight).toFloat()
-    val ypad = (paddingTop + paddingBottom).toFloat()
-
-    viewWidth = w.toFloat() - xpad
-    viewHeight = h.toFloat() - ypad
+  fun clear(canvas: Canvas, backgroundPaint: Paint) {
+    canvas.drawRect(0f, 0f, viewWidth, viewHeight, backgroundPaint)
   }
 
-  override fun onDraw(canvas: Canvas) {
-    super.onDraw(canvas)
+  private fun Canvas.drawLine(pStart: PointF, pEnd: PointF, chartPaint: Paint) =
+    drawLine(pStart.x, pStart.y, pEnd.x, pEnd.y, chartPaint)
 
-    canvas.clear()
-    if (lastPrices.isEmpty()) {
-      return
-    }
-
+  fun drawPrices(canvas: Canvas, chartPaint: Paint) {
     val xIncrement = viewWidth / lastPrices.size
     val viewMidHeight: Float = viewHeight / 2
     val heightPriceRatio = viewHeight / (2 * pricesRange)
@@ -70,7 +46,7 @@ class LastPricesView(context: Context, attrs: AttributeSet) : View(context, attr
           if (index < lastPrices.size - 1) {
             val pStart = lastPoint
             val pEnd = createPricePoint(index + 1, xIncrement, viewMidHeight, heightPriceRatio)
-            drawLine(pStart, pEnd)
+            drawLine(pStart, pEnd, chartPaint)
             lastPoint = pEnd
           }
         }
@@ -84,8 +60,8 @@ class LastPricesView(context: Context, attrs: AttributeSet) : View(context, attr
     viewMidHeight: Float,
     heightPriceRatio: Float
   ): PointF {
-    val x = paddingLeft.toFloat() + index * xIncrement
-    val y = paddingTop.toFloat() + viewMidHeight - (price - pricesMin) * heightPriceRatio
+    val x = viewPaddingLeft + index * xIncrement
+    val y = viewPaddingTop + viewMidHeight - (price - pricesMin) * heightPriceRatio
     return PointF(x, y)
   }
 
@@ -94,13 +70,8 @@ class LastPricesView(context: Context, attrs: AttributeSet) : View(context, attr
     xIncrement: Float,
     viewMidHeight: Float,
     heightPriceRatio: Float
-  ) : PointF {
+  ): PointF {
     val price = lastPrices[index]
     return createPoint(index + 1, price, xIncrement, viewMidHeight, heightPriceRatio)
   }
-
-  private fun Canvas.clear() = drawRect(0f, 0f, viewWidth, viewHeight, backgroundPaint)
-
-  private fun Canvas.drawLine(pStart: PointF, pEnd: PointF) =
-    drawLine(pStart.x, pStart.y, pEnd.x, pEnd.y, chartPaint)
 }

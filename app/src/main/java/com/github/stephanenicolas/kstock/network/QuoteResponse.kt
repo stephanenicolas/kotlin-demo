@@ -1,14 +1,14 @@
 package com.github.stephanenicolas.kstock.network
 
-data class Quote(
+data class QuoteResponse(
   // Open price of the day
-  val o: String,
+  val o: Float,
   // High price of the day
-  val h: String,
+  val h: Float,
   // Low price of the day
-  val l: String,
+  val l: Float,
   // Current price
-  val c: String,
+  val c: Float,
   // Previous close price
-  val pc: String
+  val pc: Float
 )

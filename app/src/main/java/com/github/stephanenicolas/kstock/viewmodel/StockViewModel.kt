@@ -4,11 +4,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.stephanenicolas.kstock.network.StockApi
-import com.github.stephanenicolas.kstock.placeholder.StockPlaceholderContent
+import com.github.stephanenicolas.kstock.ui.placeholder.Candle
+import com.github.stephanenicolas.kstock.ui.placeholder.StockPlaceholderContent
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 
 class StockViewModel : ViewModel() {
@@ -34,6 +36,11 @@ class StockViewModel : ViewModel() {
         }
     }
 
+  fun loadCandles(symbol: String) =
+    viewModelScope.launch {
+      updateStockCandles(symbol)
+    }
+
   private suspend fun updateStockPrice(symbol: String) {
     StockPlaceholderContent.updateStockItemPrice(
       symbol,
@@ -44,12 +51,70 @@ class StockViewModel : ViewModel() {
 
   private suspend fun updateStockLastPrices(symbol: String) {
     val today = LocalDateTime.now()
-    val tenDaysAgo = LocalDate.now().minus(HISTORY_LENGTH_IN_DAYS, ChronoUnit.DAYS).atStartOfDay()
+    val tenDaysAgo = LocalDate.now().minus(BRIEF_HISTORY_LENGTH_IN_DAYS, ChronoUnit.DAYS).atStartOfDay()
     StockPlaceholderContent.updateStockItemLastPrices(
       symbol,
-      stockApi.candles(symbol, tenDaysAgo, today).single().c
+      stockApi.lastPrices(symbol, tenDaysAgo, today).single()
     )
     data.value = copyStocks(symbol)
+  }
+
+  private suspend fun updateStockCandles(symbol: String) {
+    val today = LocalDateTime.now()
+    val tenDaysAgo = LocalDate.now().minus(HISTORY_LENGTH_IN_DAYS, ChronoUnit.DAYS).atStartOfDay()
+    val candlesResponse = stockApi.candles(symbol, tenDaysAgo, today).single()
+    val candles = with(candlesResponse) {
+      zip(o, h, l, c, v, t) { open, high, low, current, volume, timestamp ->
+        Candle(
+          open,
+          high,
+          low,
+          current,
+          volume,
+          LocalDateTime.ofEpochSecond(timestamp, 0, ZoneOffset.UTC)
+        )
+      }
+    }
+    StockPlaceholderContent.updateStockItemCandles(
+      symbol,
+      candles
+    )
+    data.value = copyStocks(symbol)
+  }
+
+  inline fun zip(
+    opens: List<Float>,
+    highs: List<Float>,
+    lows: List<Float>,
+    closes: List<Float>,
+    volumes: List<Float>,
+    timestamps: List<Long>,
+    transform: (
+      o: Float,
+      h: Float,
+      l: Float,
+      c: Float,
+      v: Float,
+      t: Long,
+    ) -> Candle
+  ): List<Candle> {
+    val result = mutableListOf<Candle>()
+    var i = 0
+    while (i < opens.size) {
+      result.add(
+        transform(
+          opens[i],
+          highs[i],
+          lows[i],
+          closes[i],
+          volumes[i],
+          timestamps[i],
+        )
+      )
+      i++
+    }
+
+    return result
   }
 
   /**
@@ -69,6 +134,7 @@ class StockViewModel : ViewModel() {
       }
 
   companion object {
-    const val HISTORY_LENGTH_IN_DAYS = 11L
+    const val BRIEF_HISTORY_LENGTH_IN_DAYS = 11L
+    const val HISTORY_LENGTH_IN_DAYS = 150L
   }
 }
