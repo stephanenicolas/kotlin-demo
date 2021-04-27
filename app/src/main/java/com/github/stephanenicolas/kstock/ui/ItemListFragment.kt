@@ -2,6 +2,8 @@ package com.github.stephanenicolas.kstock.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
@@ -13,10 +15,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.github.stephanenicolas.kstock.R
 import com.github.stephanenicolas.kstock.databinding.FragmentItemListBinding
 import com.github.stephanenicolas.kstock.databinding.ItemListContentBinding
-import com.github.stephanenicolas.kstock.ui.placeholder.StockPlaceholderContent.StockItem
 import com.github.stephanenicolas.kstock.ui.ItemListFragment.SimpleItemRecyclerViewAdapter.ViewHolder
-import com.github.stephanenicolas.kstock.viewmodel.StockViewModel
+import com.github.stephanenicolas.kstock.ui.placeholder.StockPlaceholderContent.StockItem
 import com.github.stephanenicolas.kstock.ui.views.LineChartPricesView
+import com.github.stephanenicolas.kstock.viewmodel.StockViewModel
 import kotlin.properties.Delegates
 
 /**
@@ -45,6 +47,7 @@ class ItemListFragment : Fragment() {
   ): View? {
 
     _binding = FragmentItemListBinding.inflate(inflater, container, false)
+
     return binding.root
   }
 

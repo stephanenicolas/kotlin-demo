@@ -7,7 +7,7 @@
     >
 
   <TextView
-      android:id="@+id/item_detail"
+      android:id="@+id/detail_stock_symbol"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:padding="16dp"

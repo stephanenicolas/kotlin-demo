@@ -3,11 +3,13 @@ package com.github.stephanenicolas.kstock.ui
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
+import com.github.stephanenicolas.kstock.R
 import com.github.stephanenicolas.kstock.ui.placeholder.StockPlaceholderContent
 import com.github.stephanenicolas.kstock.databinding.FragmentItemDetailBinding
 import com.github.stephanenicolas.kstock.ui.views.CandleChartView
@@ -25,7 +27,8 @@ class ItemDetailFragment : Fragment() {
    * The placeholder content this fragment is presenting.
    */
   private var itemStock: StockPlaceholderContent.StockItem? = null
-  private lateinit var itemDetailTextView: TextView
+  private lateinit var detailStockSymbolTextView: TextView
+  private lateinit var detailStockPriceTextView: TextView
   private lateinit var candleChartView: CandleChartView
 
   private val viewModel by viewModels<StockViewModel>()
@@ -54,6 +57,7 @@ class ItemDetailFragment : Fragment() {
         .single()
 
       candleChartView.setPrices(stockItem.candles)
+      setHasOptionsMenu(true)
     }
   }
 
@@ -68,7 +72,8 @@ class ItemDetailFragment : Fragment() {
 
     binding.toolbarLayout?.title = itemStock?.symbol
 
-    itemDetailTextView = binding.itemDetail
+    detailStockSymbolTextView = binding.detailStockSymbol
+    detailStockPriceTextView = binding.detailStockPrice!!
     candleChartView = binding.candleView!!
 
     itemStock?.let {
@@ -76,6 +81,13 @@ class ItemDetailFragment : Fragment() {
     }
 
     return rootView
+  }
+
+
+  override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    super.onCreateOptionsMenu(menu, inflater)
+    // Inflate the menu; this adds items to the action bar if it is present.
+    activity?.menuInflater?.inflate(R.menu.menu_main, menu)
   }
 
   companion object {
