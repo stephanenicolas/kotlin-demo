@@ -10,7 +10,7 @@
       android:title="@string/menu_search"
       android:icon="@android:drawable/ic_menu_search"
       app:showAsAction="collapseActionView|ifRoom"
-      app:actionViewClass="android.widget.SearchView" />
+      app:actionViewClass="androidx.appcompat.widget.SearchView" />
   <item
       android:id="@+id/action_edit"
       android:orderInCategory="100"

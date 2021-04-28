@@ -1,8 +1,16 @@
 package com.github.stephanenicolas.kstock.ui
 
+import android.app.SearchManager
+import android.database.MatrixCursor
 import android.os.Bundle
+import android.provider.BaseColumns
 import android.view.*
+import android.widget.AutoCompleteTextView
+import android.widget.CursorAdapter
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatAutoCompleteTextView
+import androidx.appcompat.widget.SearchView
+import androidx.cursoradapter.widget.SimpleCursorAdapter
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
@@ -11,11 +19,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.github.stephanenicolas.kstock.R
 import com.github.stephanenicolas.kstock.databinding.FragmentItemListBinding
 import com.github.stephanenicolas.kstock.databinding.ItemListContentBinding
-import com.github.stephanenicolas.kstock.ui.ItemListFragment.SimpleItemRecyclerViewAdapter.ViewHolder
 import com.github.stephanenicolas.kstock.model.Stock
+import com.github.stephanenicolas.kstock.ui.ItemListFragment.SimpleItemRecyclerViewAdapter.*
 import com.github.stephanenicolas.kstock.ui.views.LineChartPricesView
 import com.github.stephanenicolas.kstock.viewmodel.StockViewModel
 import kotlin.properties.Delegates
+
 
 /**
  * A Fragment representing a list of Pings. This fragment
@@ -58,6 +67,46 @@ class ItemListFragment : Fragment() {
         super.onCreateOptionsMenu(menu, inflater)
         // Inflate the menu; this adds items to the action bar if it is present.
         activity?.menuInflater?.inflate(R.menu.menu_list, menu)
+        val searchItem = menu.findItem(R.id.action_search)
+        //Get SearchView through MenuItem
+        val searchView = searchItem.actionView as SearchView
+
+        val from = arrayOf(SearchManager.SUGGEST_COLUMN_TEXT_1)
+        val to = intArrayOf(R.id.search_item_venue_name)
+        val cursorAdapter = SimpleCursorAdapter(
+            context,
+            R.layout.search_item,
+            null,
+            from,
+            to,
+            CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER
+        )
+        val suggestions = listOf("Apple", "Blueberry", "Carrot", "Daikon")
+
+        searchView.suggestionsAdapter = cursorAdapter
+        searchView.findViewById<AppCompatAutoCompleteTextView>(R.id.search_src_text).threshold = 1
+
+
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                //hideKeyboard()
+                return false
+            }
+
+            override fun onQueryTextChange(query: String?): Boolean {
+                val cursor =
+                    MatrixCursor(arrayOf(BaseColumns._ID, SearchManager.SUGGEST_COLUMN_TEXT_1))
+                query?.let {
+                    suggestions.forEachIndexed { index, suggestion ->
+                        if (suggestion.contains(query, true))
+                            cursor.addRow(arrayOf(index, suggestion))
+                    }
+                }
+
+                cursorAdapter.changeCursor(cursor)
+                return true
+            }
+        })
     }
 
     override fun onCreateView(
