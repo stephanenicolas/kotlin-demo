@@ -58,7 +58,6 @@ class ItemListFragment : Fragment() {
         super.onCreateOptionsMenu(menu, inflater)
         // Inflate the menu; this adds items to the action bar if it is present.
         activity?.menuInflater?.inflate(R.menu.menu_list, menu)
-        menu.findItem(R.id.action_edit).
     }
 
     override fun onCreateView(
