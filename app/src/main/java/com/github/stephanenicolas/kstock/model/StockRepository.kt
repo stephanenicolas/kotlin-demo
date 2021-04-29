@@ -35,7 +35,7 @@ object StockRepository {
         internalStocks[index] = stocks[index].copy(candles = candles)
     }
 
-    fun getStock(symbol: String?) = stocks.filter { it.symbol == symbol }.single()
+    fun getStock(symbol: String?) = stocks.filter { it.symbol == symbol }.singleOrNull()
 
     /**
      * For diff util to work, we need to

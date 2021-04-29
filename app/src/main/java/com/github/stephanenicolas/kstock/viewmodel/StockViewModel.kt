@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.stephanenicolas.kstock.network.StockApi
 import com.github.stephanenicolas.kstock.model.Candle
+import com.github.stephanenicolas.kstock.model.Stock
+import com.github.stephanenicolas.kstock.model.StockRepository
 import com.github.stephanenicolas.kstock.model.StockRepository.copyStocks
 import com.github.stephanenicolas.kstock.model.StockRepository.stocks
 import com.github.stephanenicolas.kstock.model.StockRepository.updateStockItemCandles
@@ -21,7 +23,14 @@ import java.time.temporal.ChronoUnit
 class StockViewModel : ViewModel() {
 
     val data = MutableLiveData(copyStocks())
+    val searchResults = MutableLiveData<List<Stock>>()
+    val selectedStock = MutableLiveData<Stock>()
     private val stockApi = StockApi()
+
+    fun search(symbol: String) =
+        viewModelScope.launch {
+            searchResults.value = stockApi.search(symbol).single().result.map { Stock(it.symbol,it.description) }
+        }
 
     fun loadQuotes() =
         viewModelScope.launch {
@@ -44,7 +53,7 @@ class StockViewModel : ViewModel() {
 
     private suspend fun updateStockPrice(symbol: String) {
         val price = stockApi.quote(symbol).single().c
-        updateStockItemPrice(symbol, price,)
+        updateStockItemPrice(symbol, price)
         data.value = copyStocks(symbol)
     }
 
@@ -68,8 +77,12 @@ class StockViewModel : ViewModel() {
             val s = t.map { it.toLocalDateTime() }
             o.mapIndexed { i, _ -> Candle(o[i], h[i], l[i], c[i], v[i], s[i]) }
         }
-        updateStockItemCandles(symbol, candles)
-        data.value = copyStocks(symbol)
+        val stock = StockRepository.getStock(symbol)
+        if(stock == null ) {
+            selectedStock.value = Stock(symbol, candles = candles)
+        } else {
+            selectedStock.value = stock.copy(candles = candles)
+        }
     }
 
     private fun Long.toLocalDateTime() = ofEpochSecond(this, 0, ZoneOffset.UTC)

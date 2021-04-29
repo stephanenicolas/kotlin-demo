@@ -27,7 +27,7 @@ class ItemDetailFragment : Fragment() {
   /**
    * The placeholder content this fragment is presenting.
    */
-  private var itemStock: Stock? = null
+  private var selectedStock: Stock? = null
   private lateinit var detailStockSymbolTextView: TextView
   private lateinit var detailStockPriceTextView: TextView
   private lateinit var candleChartView: CandleChartView
@@ -48,17 +48,15 @@ class ItemDetailFragment : Fragment() {
         // Load the placeholder content specified by the fragment
         // arguments. In a real-world scenario, use a Loader
         // to load content from a content provider.
-        itemStock = StockRepository.getStock(it.getString(ARG_ITEM_ID))
+        val symbol = it.getString(ARG_ITEM_ID)!!
+        selectedStock = StockRepository.getStock(symbol)?:Stock(symbol)
       }
     }
 
-    viewModel.data.observe(this) { stockList ->
-      val stockItem = stockList
-        .filter { it.symbol == itemStock!!.symbol }
-        .single()
-
-      stockItem.candles?.let {
-        candleChartView.setPrices(stockItem.candles)
+    viewModel.selectedStock.observe(this) { stock ->
+      stock.candles?.let {
+        selectedStock = stock
+        candleChartView.setPrices(stock.candles)
       }
     }
     setHasOptionsMenu(true)
@@ -73,13 +71,13 @@ class ItemDetailFragment : Fragment() {
     _binding = FragmentItemDetailBinding.inflate(inflater, container, false)
     val rootView = binding.root
 
-    binding.toolbarLayout?.title = itemStock?.symbol
+    binding.toolbarLayout?.title = selectedStock?.symbol
 
     detailStockSymbolTextView = binding.detailStockSymbol
     detailStockPriceTextView = binding.detailStockPrice!!
     candleChartView = binding.candleView!!
 
-    itemStock?.let {
+    selectedStock?.let {
       viewModel.loadCandles(it.symbol)
     }
 

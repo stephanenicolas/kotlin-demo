@@ -8,6 +8,9 @@ toto:c2082it37jksadq8le20
 sandbox_c2082it37jksadq8le2g
  */
 interface StockApiService {
+  @GET("/api/v1/search?token=c2082it37jksadq8le20")
+  suspend fun search(@Query("q") q: String): SymbolLookupResponse
+
   @GET("/api/v1/quote?token=c2082it37jksadq8le20")
   suspend fun getPrice(@Query("symbol") symbol: String): QuoteResponse
 

@@ -33,6 +33,10 @@ class StockApi {
 
   private val service: StockApiService = retrofit.create(StockApiService::class.java)
 
+  fun search(symbol: String): Flow<SymbolLookupResponse> = flow {
+    emit(service.search(symbol))
+  }.flowOn(IO)
+
   fun quote(symbol: String): Flow<QuoteResponse> = flow {
     emit(service.getPrice(symbol))
   }.flowOn(IO)
