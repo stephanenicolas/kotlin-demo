@@ -32,30 +32,19 @@ class ItemDetailFragment : Fragment() {
   private lateinit var detailStockPriceTextView: TextView
   private lateinit var candleChartView: CandleChartView
 
-  private val viewModel by viewModels<StockViewModel>()
+  private val viewModel by viewModels<StockViewModel>({requireActivity()})
 
   private var _binding: FragmentItemDetailBinding? = null
 
-  // This property is only valid between onCreateView and
-  // onDestroyView.
   private val binding get() = _binding!!
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-
-    arguments?.let {
-      if (it.containsKey(ARG_ITEM_ID)) {
-        // Load the placeholder content specified by the fragment
-        // arguments. In a real-world scenario, use a Loader
-        // to load content from a content provider.
-        val symbol = it.getString(ARG_ITEM_ID)!!
-        selectedStock = StockRepository.getStock(symbol)?:Stock(symbol)
-      }
-    }
+    selectedStock = viewModel.selectedStock.value
 
     viewModel.selectedStock.observe(this) { stock ->
+      selectedStock = stock
       stock.candles?.let {
-        selectedStock = stock
         candleChartView.setPrices(stock.candles)
       }
     }
@@ -89,14 +78,6 @@ class ItemDetailFragment : Fragment() {
     super.onCreateOptionsMenu(menu, inflater)
     // Inflate the menu; this adds items to the action bar if it is present.
     activity?.menuInflater?.inflate(R.menu.menu_main, menu)
-  }
-
-  companion object {
-    /**
-     * The fragment argument representing the item ID that this fragment
-     * represents.
-     */
-    const val ARG_ITEM_ID = "item_id"
   }
 
   override fun onDestroyView() {

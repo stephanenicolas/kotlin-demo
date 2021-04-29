@@ -2,16 +2,13 @@ package com.github.stephanenicolas.kstock.ui
 
 import android.app.SearchManager.SUGGEST_COLUMN_TEXT_1
 import android.app.SearchManager.SUGGEST_COLUMN_TEXT_2
-import android.content.Context
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.os.Bundle
 import android.provider.BaseColumns
 import android.view.*
-import android.view.inputmethod.InputMethodManager
 import android.widget.CursorAdapter
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView
 import androidx.appcompat.widget.SearchView
 import androidx.cursoradapter.widget.SimpleCursorAdapter
@@ -48,7 +45,7 @@ class ItemListFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
-    private val viewModel by viewModels<StockViewModel>()
+    private val viewModel by viewModels<StockViewModel>({requireActivity()})
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -102,7 +99,8 @@ class ItemListFragment : Fragment() {
          */
         val onClickListener = View.OnClickListener { itemView ->
             val stock = itemView.tag as Stock
-            navigator.openDetails(stock)
+            viewModel.selectedStock.value = stock
+            navigator.openDetails()
         }
 
         setupRecyclerView(recyclerView, onClickListener)
@@ -114,14 +112,8 @@ class ItemListFragment : Fragment() {
         private val itemDetailFragmentContainer: View?
     ) {
 
-        fun openDetails(stock: Stock) {
-
-
+        fun openDetails() {
             val bundle = Bundle()
-            bundle.putString(
-                ItemDetailFragment.ARG_ITEM_ID,
-                stock.symbol
-            )
             if (itemDetailFragmentContainer != null) {
                 itemDetailFragmentContainer.findNavController()
                     .navigate(R.id.fragment_item_detail, bundle)
@@ -154,6 +146,15 @@ class ItemListFragment : Fragment() {
         )
 
         searchView.setOnSuggestionListener(SuggestionListener(searchView))
+
+        viewModel.error.observe(this) {
+            autoCompleteTextView.dismissDropDown()
+            searchView.setQuery("", false)
+            if (!searchView.isIconified) {
+                searchView.isIconified = true
+            }
+            searchItem.collapseActionView()
+        }
     }
 
     private fun searchSuggestionAdapter(): SimpleCursorAdapter {
@@ -267,21 +268,9 @@ class ItemListFragment : Fragment() {
         _binding = null
     }
 
-    fun Context.hideKeyboard(view: View) {
-        val inputMethodManager =
-            getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
-    }
-
-    fun Fragment.hideKeyboard() {
-        view?.let {
-            activity?.hideKeyboard(it)
-        }
-    }
-
     inner class SearchSuggestionQueryListener(
-        private val viewModel: StockViewModel,
-        private val searchSuggestionsAdapter: SimpleCursorAdapter
+        viewModel: StockViewModel,
+        searchSuggestionsAdapter: SimpleCursorAdapter
     ) : SearchView.OnQueryTextListener {
 
         init {
@@ -297,6 +286,7 @@ class ItemListFragment : Fragment() {
                 it.forEachIndexed { index, suggestion ->
                     cursor.addRow(arrayOf(index, suggestion.symbol, suggestion.description))
                     searchSuggestionsAdapter.changeCursor(cursor)
+                    searchSuggestionsAdapter.notifyDataSetChanged()
                 }
             }
         }
@@ -305,7 +295,8 @@ class ItemListFragment : Fragment() {
             hideKeyboard()
             query?.let {
                 val stock = Stock(symbol = query!!)
-                navigator.openDetails(stock)
+                viewModel.selectedStock.value = stock
+                navigator.openDetails()
             }
             return true
         }

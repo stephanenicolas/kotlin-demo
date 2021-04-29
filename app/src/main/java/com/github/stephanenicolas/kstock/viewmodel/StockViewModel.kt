@@ -33,9 +33,8 @@ class StockViewModel : ViewModel() {
             stockApi.search(symbol).collect { networkState ->
                 handleState(networkState) {
                     searchResults.value =
-                        it.data.result.map { Stock(it.symbol, it.description) }
+                        it.result.map { Stock(it.symbol, it.description) }
                 }
-
             }
         }
 
@@ -61,7 +60,7 @@ class StockViewModel : ViewModel() {
     private suspend fun updateStockPrice(symbol: String) {
         stockApi.quote(symbol).collect { networkState ->
             handleState(networkState) {
-                updateStockItemPrice(symbol, it.data.c)
+                updateStockItemPrice(symbol, it.c)
                 data.value = copyStocks(symbol)
             }
         }
@@ -75,7 +74,7 @@ class StockViewModel : ViewModel() {
             .atStartOfDay()
         stockApi.lastPrices(symbol, tenDaysAgo, today).collect { networkState ->
             handleState(networkState) {
-                updateStockItemLastPrices(symbol, it.data)
+                updateStockItemLastPrices(symbol, it)
                 data.value = copyStocks(symbol)
             }
         }
@@ -87,7 +86,7 @@ class StockViewModel : ViewModel() {
             LocalDate.now().minus(HISTORY_LENGTH_IN_DAYS, ChronoUnit.DAYS).atStartOfDay()
         stockApi.candles(symbol, tenDaysAgo, today).collect { networkState ->
             handleState(networkState) {
-                val candles = with(it.data) {
+                val candles = with(it) {
                     val s = t.map { it.toLocalDateTime() }
                     o.mapIndexed { i, _ -> Candle(o[i], h[i], l[i], c[i], v[i], s[i]) }
                 }
@@ -103,12 +102,12 @@ class StockViewModel : ViewModel() {
 
     private fun <T> handleState(
         networkState: NetworkState<T>,
-        action: (NetworkState.Success<T>) -> Unit
+        actionSuccess: (T) -> Unit
     ) =
         when (networkState) {
-            is NetworkState.Success -> action(networkState)
+            is NetworkState.Success -> actionSuccess(networkState.data)
             is NetworkState.NetworkError -> error.value = networkState.code
-            else -> error.value = -1
+            else -> Unit
         }
 
     private fun Long.toLocalDateTime() = ofEpochSecond(this, 0, ZoneOffset.UTC)
