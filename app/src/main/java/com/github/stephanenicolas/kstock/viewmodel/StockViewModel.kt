@@ -3,16 +3,16 @@ package com.github.stephanenicolas.kstock.viewmodel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.github.stephanenicolas.kstock.network.StockApi
 import com.github.stephanenicolas.kstock.model.Candle
 import com.github.stephanenicolas.kstock.model.Stock
 import com.github.stephanenicolas.kstock.model.StockRepository
 import com.github.stephanenicolas.kstock.model.StockRepository.copyStocks
 import com.github.stephanenicolas.kstock.model.StockRepository.stocks
-import com.github.stephanenicolas.kstock.model.StockRepository.updateStockItemCandles
 import com.github.stephanenicolas.kstock.model.StockRepository.updateStockItemLastPrices
 import com.github.stephanenicolas.kstock.model.StockRepository.updateStockItemPrice
-import kotlinx.coroutines.flow.single
+import com.github.stephanenicolas.kstock.network.NetworkState
+import com.github.stephanenicolas.kstock.network.StockApi
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -25,11 +25,18 @@ class StockViewModel : ViewModel() {
     val data = MutableLiveData(copyStocks())
     val searchResults = MutableLiveData<List<Stock>>()
     val selectedStock = MutableLiveData<Stock>()
+    val error = MutableLiveData<Int>()
     private val stockApi = StockApi()
 
     fun search(symbol: String) =
         viewModelScope.launch {
-            searchResults.value = stockApi.search(symbol).single().result.map { Stock(it.symbol,it.description) }
+            stockApi.search(symbol).collect { networkState ->
+                handleState(networkState) {
+                    searchResults.value =
+                        it.data.result.map { Stock(it.symbol, it.description) }
+                }
+
+            }
         }
 
     fun loadQuotes() =
@@ -52,9 +59,12 @@ class StockViewModel : ViewModel() {
         }
 
     private suspend fun updateStockPrice(symbol: String) {
-        val price = stockApi.quote(symbol).single().c
-        updateStockItemPrice(symbol, price)
-        data.value = copyStocks(symbol)
+        stockApi.quote(symbol).collect { networkState ->
+            handleState(networkState) {
+                updateStockItemPrice(symbol, it.data.c)
+                data.value = copyStocks(symbol)
+            }
+        }
     }
 
     private suspend fun updateStockLastPrices(symbol: String) {
@@ -63,27 +73,43 @@ class StockViewModel : ViewModel() {
             .now()
             .minus(BRIEF_HISTORY_LENGTH_IN_DAYS, ChronoUnit.DAYS)
             .atStartOfDay()
-        val lastPrices = stockApi.lastPrices(symbol, tenDaysAgo, today).single()
-        updateStockItemLastPrices(symbol, lastPrices)
-        data.value = copyStocks(symbol)
+        stockApi.lastPrices(symbol, tenDaysAgo, today).collect { networkState ->
+            handleState(networkState) {
+                updateStockItemLastPrices(symbol, it.data)
+                data.value = copyStocks(symbol)
+            }
+        }
     }
 
     private suspend fun updateStockCandles(symbol: String) {
         val today = LocalDateTime.now()
         val tenDaysAgo =
             LocalDate.now().minus(HISTORY_LENGTH_IN_DAYS, ChronoUnit.DAYS).atStartOfDay()
-        val candlesResponse = stockApi.candles(symbol, tenDaysAgo, today).single()
-        val candles = with(candlesResponse) {
-            val s = t.map { it.toLocalDateTime() }
-            o.mapIndexed { i, _ -> Candle(o[i], h[i], l[i], c[i], v[i], s[i]) }
-        }
-        val stock = StockRepository.getStock(symbol)
-        if(stock == null ) {
-            selectedStock.value = Stock(symbol, candles = candles)
-        } else {
-            selectedStock.value = stock.copy(candles = candles)
+        stockApi.candles(symbol, tenDaysAgo, today).collect { networkState ->
+            handleState(networkState) {
+                val candles = with(it.data) {
+                    val s = t.map { it.toLocalDateTime() }
+                    o.mapIndexed { i, _ -> Candle(o[i], h[i], l[i], c[i], v[i], s[i]) }
+                }
+                val stock = StockRepository.getStock(symbol)
+                if (stock == null) {
+                    selectedStock.value = Stock(symbol, candles = candles)
+                } else {
+                    selectedStock.value = stock.copy(candles = candles)
+                }
+            }
         }
     }
+
+    private fun <T> handleState(
+        networkState: NetworkState<T>,
+        action: (NetworkState.Success<T>) -> Unit
+    ) =
+        when (networkState) {
+            is NetworkState.Success -> action(networkState)
+            is NetworkState.NetworkError -> error.value = networkState.code
+            else -> error.value = -1
+        }
 
     private fun Long.toLocalDateTime() = ofEpochSecond(this, 0, ZoneOffset.UTC)
 
