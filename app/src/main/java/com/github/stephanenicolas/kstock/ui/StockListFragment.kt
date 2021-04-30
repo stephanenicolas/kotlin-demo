@@ -10,7 +10,6 @@ import android.provider.BaseColumns
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.CursorAdapter
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView
 import androidx.appcompat.widget.SearchView
@@ -46,7 +45,7 @@ class StockListFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
-    private val viewModel by viewModels<StockViewModel>({requireActivity()})
+    private val viewModel by viewModels<StockViewModel>({ requireActivity() })
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -96,6 +95,7 @@ class StockListFragment : Fragment() {
 
         setupRecyclerView(recyclerView, onClickListener)
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
@@ -114,14 +114,19 @@ class StockListFragment : Fragment() {
             suggestionsAdapter = searchSuggestionsAdapter
             setOnQueryTextListener(SearchSuggestionQueryListener(searchSuggestionsAdapter))
             viewModel.error.observe(this@StockListFragment) {
-                autoCompleteTextView.dismissDropDown()
-                searchView.setQuery("", false)
-                if (!searchView.isIconified) {
-                    searchView.isIconified = true
-                }
-                searchItem.collapseActionView()
+                searchView.collapse(searchItem)
             }
         }
+    }
+
+    private fun SearchView.collapse(searchItem: MenuItem) {
+        val autoCompleteTextView = findViewById<AppCompatAutoCompleteTextView>(R.id.search_src_text)
+        autoCompleteTextView.dismissDropDown()
+        setQuery("", false)
+        if (!isIconified) {
+            isIconified = true
+        }
+        searchItem.collapseActionView()
     }
 
     private fun SearchView.setupAutoCompleteTextView(): AppCompatAutoCompleteTextView {
@@ -130,7 +135,7 @@ class StockListFragment : Fragment() {
             threshold = 1
             setDropDownBackgroundResource(android.R.color.white)
         }
-       return autoCompleteTextView
+        return autoCompleteTextView
     }
 
     private fun searchSuggestionAdapter(): SimpleCursorAdapter {
