@@ -4,6 +4,7 @@
     android:id="@+id/item_list_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/less_dark_gray"
     >
 
   <androidx.constraintlayout.widget.Guideline
@@ -21,13 +22,14 @@
       android:layout_height="match_parent"
       android:layout_marginEnd="@dimen/container_margin"
       android:layout_marginStart="@dimen/container_margin"
+
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toStartOf="@id/guideline"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
       app:layoutManager="LinearLayoutManager"
-      tools:context="com.github.stephanenicolas.kstock.ui.ItemDetailHostActivity"
-      tools:listitem="@layout/item_list_content"
+      tools:context="com.github.stephanenicolas.kstock.ui.MainActivity"
+      tools:listitem="@layout/item_stock"
       />
 
   <fragment

@@ -11,18 +11,18 @@ import android.widget.TextView
 import androidx.fragment.app.viewModels
 import com.github.stephanenicolas.kstock.R
 import com.github.stephanenicolas.kstock.model.StockRepository
-import com.github.stephanenicolas.kstock.databinding.FragmentItemDetailBinding
+import com.github.stephanenicolas.kstock.databinding.FragmentStockDetailBinding
 import com.github.stephanenicolas.kstock.model.Stock
 import com.github.stephanenicolas.kstock.ui.views.CandleChartView
 import com.github.stephanenicolas.kstock.viewmodel.StockViewModel
 
 /**
  * A fragment representing a single Item detail screen.
- * This fragment is either contained in a [ItemListFragment]
+ * This fragment is either contained in a [StockListFragment]
  * in two-pane mode (on larger screen devices) or self-contained
  * on handsets.
  */
-class ItemDetailFragment : Fragment() {
+class StockDetailFragment : Fragment() {
 
   /**
    * The placeholder content this fragment is presenting.
@@ -34,7 +34,7 @@ class ItemDetailFragment : Fragment() {
 
   private val viewModel by viewModels<StockViewModel>({requireActivity()})
 
-  private var _binding: FragmentItemDetailBinding? = null
+  private var _binding: FragmentStockDetailBinding? = null
 
   private val binding get() = _binding!!
 
@@ -57,7 +57,7 @@ class ItemDetailFragment : Fragment() {
     savedInstanceState: Bundle?
   ): View? {
 
-    _binding = FragmentItemDetailBinding.inflate(inflater, container, false)
+    _binding = FragmentStockDetailBinding.inflate(inflater, container, false)
     val rootView = binding.root
 
     binding.toolbarLayout?.title = selectedStock?.symbol
@@ -73,11 +73,10 @@ class ItemDetailFragment : Fragment() {
     return rootView
   }
 
-
   override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
     super.onCreateOptionsMenu(menu, inflater)
     // Inflate the menu; this adds items to the action bar if it is present.
-    activity?.menuInflater?.inflate(R.menu.menu_main, menu)
+    activity?.menuInflater?.inflate(R.menu.menu_detail, menu)
   }
 
   override fun onDestroyView() {

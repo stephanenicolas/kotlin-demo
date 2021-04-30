@@ -11,11 +11,11 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.github.stephanenicolas.kstock.R
 import com.github.stephanenicolas.kstock.R.id
-import com.github.stephanenicolas.kstock.databinding.ActivityItemDetailBinding
+import com.github.stephanenicolas.kstock.databinding.ActivityMainBinding
 import com.github.stephanenicolas.kstock.viewmodel.StockViewModel
 import com.google.android.material.snackbar.Snackbar
 
-class ItemDetailHostActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
 
   private lateinit var appBarConfiguration: AppBarConfiguration
 
@@ -24,7 +24,7 @@ class ItemDetailHostActivity : AppCompatActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
-    val binding = ActivityItemDetailBinding.inflate(layoutInflater)
+    val binding = ActivityMainBinding.inflate(layoutInflater)
     setContentView(binding.root)
 
     val navHostFragment =

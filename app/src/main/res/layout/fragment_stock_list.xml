@@ -12,10 +12,8 @@
       android:name="com.github.stephanenicolas.kstock.ItemListFragment"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:layout_marginLeft="16dp"
-      android:layout_marginRight="16dp"
       app:layoutManager="LinearLayoutManager"
-      tools:context="com.github.stephanenicolas.kstock.ui.ItemDetailHostActivity"
-      tools:listitem="@layout/item_list_content"
+      tools:context="com.github.stephanenicolas.kstock.ui.MainActivity"
+      tools:listitem="@layout/item_stock"
       />
 </androidx.constraintlayout.widget.ConstraintLayout>

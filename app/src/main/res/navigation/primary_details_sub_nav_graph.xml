@@ -6,9 +6,9 @@
     app:startDestination="@id/fragment_item_detail">
   <fragment
       android:id="@+id/fragment_item_detail"
-      android:name="com.github.stephanenicolas.kstock.ui.ItemDetailFragment"
+      android:name="com.github.stephanenicolas.kstock.ui.StockDetailFragment"
       android:label="@string/title_item_detail"
-      tools:layout="@layout/fragment_item_detail">
+      tools:layout="@layout/fragment_stock_detail">
     <argument
         android:name="item_id"
         android:defaultValue=""

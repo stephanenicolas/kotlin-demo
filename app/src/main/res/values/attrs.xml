@@ -1,0 +1,12 @@
+<resources>
+    <declare-styleable name="LineChartPricesView">
+        <attr name="lineChartBackground" format="color" />
+        <attr name="lineChartColor" format="color" />
+    </declare-styleable>
+    <declare-styleable name="CandleChartPricesView">
+        <attr name="candleChartBackground" format="color" />
+        <attr name="candleChartColor" format="color" />
+        <attr name="axesColor" format="color" />
+        <attr name="axesLabelColor" format="color" />
+    </declare-styleable>
+</resources>

@@ -40,10 +40,6 @@ class CandleChartDrawPort {
 
   fun hasNoPrices() = candles.isEmpty()
 
-  fun clear(canvas: Canvas, backgroundPaint: Paint) {
-    canvas.drawRect(0f, 0f, viewWidth, viewHeight, backgroundPaint)
-  }
-
   private fun Canvas.drawLine(pStart: PointF, pEnd: PointF, chartPaint: Paint) =
     drawLine(pStart.x, pStart.y, pEnd.x, pEnd.y, chartPaint)
 
@@ -142,7 +138,7 @@ class CandleChartDrawPort {
     }
   }
 
-  fun drawCandles(canvas: Canvas, gainPaint: Paint, lossPaint: Paint) {
+  fun drawCandles(canvas: Canvas, chartPaint: Paint) {
     val xAxisLeft = xAxisLeft()
     val xAxisHeight = xAxisHeight()
     val xIncrement = (viewWidth - yAxisLabelwidth) / candles.size
@@ -155,7 +151,7 @@ class CandleChartDrawPort {
           val pStart = currentPoint
           val pEnd =
             createPricePoint(index + 1, xIncrement, xAxisLeft, xAxisHeight, heightPriceRatio)
-          canvas.drawLine(pStart, pEnd, gainPaint)
+          canvas.drawLine(pStart, pEnd, chartPaint)
           currentPoint = pEnd
         }
       }

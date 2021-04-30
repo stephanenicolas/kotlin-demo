@@ -18,7 +18,9 @@
       app:layout_constraintTop_toTopOf="parent"
       app:defaultNavHost="true"
       app:navGraph="@navigation/primary_details_nav_graph"
-      tools:layout="@layout/fragment_item_detail"
+      tools:layout="@layout/fragment_stock_detail"
+      style="@style/MainContainer"
+      android:background="@color/less_dark_gray"
       />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
