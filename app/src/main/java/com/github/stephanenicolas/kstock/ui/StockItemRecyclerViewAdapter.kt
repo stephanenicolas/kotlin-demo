@@ -17,6 +17,9 @@ class StockItemRecyclerViewAdapter(
 ) :
     RecyclerView.Adapter<ViewHolder>(), StockItemDiffUtilAdapter {
 
+    val gainColor = android.R.color.holo_green_light
+    val lossColor = android.R.color.holo_red_light
+
     var items: List<Stock> by Delegates.observable(emptyList()) { _, oldList, newList ->
         notifyChanges(this, oldList, newList) { oldItem, newItem ->
             oldItem.symbol == newItem.symbol
@@ -41,28 +44,44 @@ class StockItemRecyclerViewAdapter(
         holder: ViewHolder,
         position: Int
     ) {
-        val item = items[position]
-        holder.symbolView.text = item.symbol
-        holder.priceView.text = item.price?.round()
-        item.lastPrices?.let {
-            holder.lineChartPricesChartView.setLastPrices(item.lastPrices)
-        }
+        with(holder) {
+            val item = items[position]
+            symbolView.text = item.symbol
 
-        with(holder.itemView) {
-            tag = item
-            setOnClickListener(onClickListener)
+            val currentPrice = item.price
+            priceView.text = currentPrice?.roundToString()
+
+            val lastClosePrice = item.lastPrices?.getOrNull(item.lastPrices?.size - 2)
+            val dayGain = currentPrice?.minus(lastClosePrice ?: 0f)
+            dayGainView.text = dayGain?.roundSignedToString()
+            val dayGainPercent = dayGain?.times(100f)?.div(lastClosePrice ?: 1f)
+            dayGainPercentView.text = dayGainPercent?.roundSignedPercentToString()
+            dayGain?.let {
+                val colorResId = if (dayGain >= 0) gainColor else lossColor
+                val color = dayGainView.resources.getColor(colorResId, null)
+                dayGainView.setTextColor(color)
+                dayGainPercentView.setTextColor(color)
+            }
+            lineChartPricesChartView.setLastPrices(item.lastPrices ?: emptyList())
+
+            itemView.tag = item
+            itemView.setOnClickListener(onClickListener)
         }
     }
 
     override fun getItemCount() = items.size
 
-    private fun Float.round(decimals: Int = 2): String = "%.${decimals}f".format(this)
+    private fun Float.roundToString(decimals: Int = 2): String = "%.${decimals}f".format(this)
+    private fun Float.roundSignedToString(decimals: Int = 2): String = "%+.${decimals}f".format(this)
+    private fun Float.roundSignedPercentToString(decimals: Int = 2): String = roundSignedToString()?.plus("%")
 
     inner class ViewHolder(binding: ItemStockBinding) : RecyclerView.ViewHolder(
         binding.root
     ) {
         val symbolView: TextView = binding.stockItemSymbol
         val priceView: TextView = binding.stockItemPrice
+        val dayGainPercentView: TextView = binding.stockItemDayGainPercent
+        val dayGainView: TextView = binding.stockItemDayGain
         val lineChartPricesChartView: LineChartPricesView = binding.lastPricesChart
     }
 }

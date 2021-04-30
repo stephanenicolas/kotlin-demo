@@ -45,7 +45,7 @@
     </style>
 
     <style name="SmallText" parent="TextAppearance.MaterialComponents.Body1">
-        <item name="android:textSize">10sp</item>
+        <item name="android:textSize">12sp</item>
         <item name="android:singleLine">true</item>
         <item name="android:textColor">?android:textColorSecondary</item>
     </style>

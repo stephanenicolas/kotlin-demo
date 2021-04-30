@@ -34,7 +34,6 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/stock_item_price"
         android:layout_alignStart="@id/stock_item_price"
-        android:text="-2.04%"
         android:textAlignment="textStart" />
 
     <TextView
@@ -45,7 +44,6 @@
         android:layout_below="@id/stock_item_price"
         android:layout_alignRight="@id/stock_item_price"
         android:layout_toRightOf="@id/stock_item_day_gain_percent"
-        android:text="+1"
         android:textAlignment="textEnd" />
 
 
