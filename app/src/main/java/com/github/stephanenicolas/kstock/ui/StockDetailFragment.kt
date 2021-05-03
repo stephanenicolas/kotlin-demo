@@ -10,7 +10,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.viewModels
 import com.github.stephanenicolas.kstock.R
-import com.github.stephanenicolas.kstock.databinding.FragmentStockDetail2Binding
 import com.github.stephanenicolas.kstock.model.StockRepository
 import com.github.stephanenicolas.kstock.databinding.FragmentStockDetailBinding
 import com.github.stephanenicolas.kstock.model.Stock
@@ -36,7 +35,7 @@ class StockDetailFragment : Fragment() {
 
   private val viewModel by viewModels<StockViewModel>({requireActivity()})
 
-  private var _binding: FragmentStockDetail2Binding? = null
+  private var _binding: FragmentStockDetailBinding? = null
 
   private val binding get() = _binding!!
 
@@ -59,7 +58,7 @@ class StockDetailFragment : Fragment() {
     savedInstanceState: Bundle?
   ): View? {
 
-    _binding = FragmentStockDetail2Binding.inflate(inflater, container, false)
+    _binding = FragmentStockDetailBinding.inflate(inflater, container, false)
     val rootView = binding.root
 
     detailStockSymbolTextView = binding.detailStockSymbol

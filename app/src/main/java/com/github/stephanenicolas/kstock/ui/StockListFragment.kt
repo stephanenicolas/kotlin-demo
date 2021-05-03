@@ -194,7 +194,7 @@ class StockListFragment : Fragment() {
             viewModel.selectedStock.value = stock
             if (itemDetailFragmentContainer != null) {
                 itemDetailFragmentContainer.findNavController()
-                    .navigate(R.id.fragment_item_detail)
+                    .navigate(R.id.fragment_stock_detail)
             } else {
                 itemView.findNavController().navigate(R.id.show_item_detail)
             }

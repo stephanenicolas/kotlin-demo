@@ -11,12 +11,12 @@
       android:label="Symbols">
     <action
         android:id="@+id/show_item_detail"
-        app:destination="@id/item_detail_fragment" />
+        app:destination="@id/fragment_stock_detail" />
   </fragment>
   <fragment
-      android:id="@+id/item_detail_fragment"
+      android:id="@+id/fragment_stock_detail"
       android:name="com.github.stephanenicolas.kstock.ui.StockDetailFragment"
       android:label="Stock Detail"
-      tools:layout="@layout/fragment_stock_detail_2">
+      tools:layout="@layout/fragment_stock_detail">
   </fragment>
 </navigation>

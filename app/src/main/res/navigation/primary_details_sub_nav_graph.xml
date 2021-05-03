@@ -3,12 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph_details"
-    app:startDestination="@id/fragment_item_detail">
+    app:startDestination="@id/fragment_stock_detail">
   <fragment
-      android:id="@+id/fragment_item_detail"
+      android:id="@+id/fragment_stock_detail"
       android:name="com.github.stephanenicolas.kstock.ui.StockDetailFragment"
       android:label="@string/title_item_detail"
-      tools:layout="@layout/fragment_stock_detail_2">
+      tools:layout="@layout/fragment_stock_detail">
   </fragment>
 
 </navigation>
