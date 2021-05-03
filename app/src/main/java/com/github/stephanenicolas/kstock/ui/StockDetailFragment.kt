@@ -16,6 +16,7 @@ import com.github.stephanenicolas.kstock.databinding.FragmentStockDetailBinding
 import com.github.stephanenicolas.kstock.model.Stock
 import com.github.stephanenicolas.kstock.ui.views.CandleChartView
 import com.github.stephanenicolas.kstock.viewmodel.StockViewModel
+import kotlin.math.roundToInt
 
 /**
  * A fragment representing a single Item detail screen.
@@ -61,13 +62,13 @@ class StockDetailFragment : Fragment() {
     _binding = FragmentStockDetail2Binding.inflate(inflater, container, false)
     val rootView = binding.root
 
-    binding.toolbarLayout?.title = selectedStock?.symbol
-
     detailStockSymbolTextView = binding.detailStockSymbol
     detailStockPriceTextView = binding.detailStockPrice!!
     candleChartView = binding.candleView!!
 
     selectedStock?.let {
+      detailStockSymbolTextView.text = it.symbol
+      detailStockPriceTextView.text = it.price.toString()
       viewModel.loadCandles(it.symbol)
     }
 
